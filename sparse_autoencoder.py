@@ -15,6 +15,8 @@ examplesBias = np.concatenate((np.ones(len(examples)).reshape(-1, 1), examples),
 y = examples
 weightsIH = np.random.rand(9, 3)
 weightsHO = np.random.rand(4, 8)
+# weightsIH = np.zeros((9, 3))
+# weightsHO = np.zeros((4, 8))
 
 ALPHA = 0.1
 GAMMA = 0.7
@@ -29,7 +31,7 @@ outputHiddenBias = np.vstack([np.ones(len(examples)), outputHidden.T])
 yPred = np.dot(outputHiddenBias.T, weightsHO)
 yPred = sigmoid(yPred)
 
-# print(yPred)
+print(yPred)
 # Backprop now
 deltaOutput = yPred - y
 # print(deltaOutput)
