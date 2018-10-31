@@ -10,34 +10,37 @@ def derivedSigmoid(x):
 
 
 examples = np.eye(8)
-# examples = [[1, 0, 0, 0, 0, 0, 0, 0]]
-examplesBias = np.concatenate((np.ones(len(examples)).reshape(-1, 1), examples), axis=1)
+examples = [[1, 0, 0, 0, 0, 0, 0, 0]]
 y = examples
 weightsIH = np.random.rand(9, 3)
 weightsHO = np.random.rand(4, 8)
 # weightsIH = np.zeros((9, 3))
 # weightsHO = np.zeros((4, 8))
 
-ALPHA = 0.1
+ALPHA = 0.01
 GAMMA = 0.7
 # while not converged:
 # forward pass --> backprop
 # 8 nodes+bias X 3 nodes+bias X 8 nodes
-hiddenActivation = np.dot(examplesBias, weightsIH)
-outputHidden = sigmoid(hiddenActivation)
+inputBias = np.concatenate((np.ones(len(examples)).reshape(-1, 1), examples), axis=1)
+hiddenInput = np.dot(inputBias, weightsIH)
+print(f"hiddenInput.shape. Should be (numSamples, 3) {hiddenInput.shape}")
+activationHidden = sigmoid(hiddenInput)
+outputHiddenBias = np.concatenate((np.ones(len(examples)).reshape(-1, 1), activationHidden), axis=1)
+print(f"outputHiddenBias.shape. Should be (numSamples, 4) {outputHiddenBias.shape}")
 
-# print(np.ones(len(examples)))
-outputHiddenBias = np.vstack([np.ones(len(examples)), outputHidden.T])
-yPred = np.dot(outputHiddenBias.T, weightsHO)
+yPred = np.dot(outputHiddenBias, weightsHO)
 yPred = sigmoid(yPred)
-
+print("yPred")
 print(yPred)
-# Backprop now
-deltaOutput = yPred - y
-# print(deltaOutput)
-# print(np.dot(outputHiddenBias, deltaOutput))
-deltaHidden = np.dot(np.dot(outputHiddenBias, deltaOutput), derivedSigmoid(yPred))
 
-print(deltaHidden)
+# Backprop now
+error = yPred - y
+deltaOutput = (np.dot(error, weightsHO.T) * derivedSigmoid(outputHiddenBias))
+print(f"deltaOutput: {deltaOutput}")
+deltaHidden = np.dot(deltaOutput[:, 1:], weightsIH.T) * derivedSigmoid(inputBias)
+print(f"deltaHidden: {deltaHidden}")
+
+# print(deltaHidden)
 
 # TODO regularization
