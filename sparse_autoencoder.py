@@ -21,6 +21,7 @@ ALPHA = 0.01
 GAMMA = 0.7
 # while not converged:
 # forward pass --> backprop
+totalError = 0
 # 8 nodes+bias X 3 nodes+bias X 8 nodes
 inputBias = np.concatenate((np.ones(len(examples)).reshape(-1, 1), examples), axis=1)
 hiddenInput = np.dot(inputBias, weightsIH)
@@ -35,12 +36,24 @@ print("yPred")
 print(yPred)
 
 # Backprop now
-error = yPred - y
-deltaOutput = (np.dot(error, weightsHO.T) * derivedSigmoid(outputHiddenBias))
-print(f"deltaOutput: {deltaOutput}")
-deltaHidden = np.dot(deltaOutput[:, 1:], weightsIH.T) * derivedSigmoid(inputBias)
-print(f"deltaHidden: {deltaHidden}")
+outputError = yPred - y
+totalError += outputError
+print("outputError")
+print(outputError)
+print(outputError.shape)
+deltaOutput = outputError* derivedSigmoid(yPred)
+errorHidden = np.dot(deltaOutput, weightsHO.T)
+deltaHidden = errorHidden[:, 1:] * derivedSigmoid(activationHidden)
 
-# print(deltaHidden)
+# delta2 = np.dot(outputError, weightsHO.T) * derivedSigmoid(outputHiddenBias)
+print(f"deltaOutput: {deltaOutput}")
+# delta1 = np.dot(delta2[:, 1:], weightsIH.T) * derivedSigmoid(inputBias)
+print(f"deltaHidden: {deltaHidden}")
+print(np.dot(yPred.T, deltaOutput).shape)
+weightsHO += ALPHA*np.dot(yPred.T, deltaOutput)
+weightsIH += ALPHA*np.dot(activationHidden.T, deltaHidden)
+# weightsIH += 1/len(examples)*(GAMMA*(weightsIH.T-ALPHA*(delta1.T)))
+
+# print(delta1)
 
 # TODO regularization
