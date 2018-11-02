@@ -24,7 +24,7 @@ weightsHO = np.random.rand(4, 8)
 # weightsIH = np.zeros((9, 3))
 # weightsHO = np.zeros((4, 8))
 # print(f'weightsIH {weightsIH}')
-print(forwardPass([[1, 0, 0, 0, 0, 0, 0, 0]]))
+# print(forwardPass([[1, 0, 0, 0, 0, 0, 0, 0]]))
 
 batchSize= 4
 iterations = 0
@@ -54,7 +54,7 @@ while not converged:
     # print(f'y: {y}')
 
     #### Backprop now ####
-    outputError = y - yPred
+    outputError = yPred - y
     # print("outputError")
     # print(outputError)
     # print(outputError.shape)
@@ -65,15 +65,16 @@ while not converged:
     errorHidden = np.dot(deltaOutput, weightsHO.T)
     deltaHidden = errorHidden[:, 1:] * derivedSigmoid(activationHidden)
 
-    # adapt the weights
-    # weightsIH[1:, :] = 1/len(samples)*(ALPHA*np.dot(inputBias[:, 1:].T, deltaHidden) + GAMMA*weightsIH[1:, :])
-    # weightsHO[1:, :] = 1/len(samples)*(ALPHA*np.dot(outputHiddenBias[:, 1:].T, deltaOutput) + GAMMA*weightsHO[1:, :])
     # # adapt the biases
-    # weightsIH[0, :] = 1/len(samples)*(ALPHA*np.dot(inputBias[:, 0].T, deltaHidden))
-    # weightsHO[0, :] = 1/len(samples)*(ALPHA*np.dot(outputHiddenBias[:, 0].T, deltaOutput))
+    weightsIH[0, :] -= 1/len(samples)*ALPHA*np.dot(inputBias[:, 0].T, deltaHidden)
+    weightsHO[0, :] -= 1/len(samples)*ALPHA*np.dot(outputHiddenBias[:, 0].T, deltaOutput)
+    # adapt the weights
+    weightsIH[1:, :] -= 1/len(samples)*ALPHA*(np.dot(inputBias[:, 1:].T, deltaHidden) + GAMMA*weightsIH[1:, :])
+    weightsHO[1:, :] -= 1/len(samples)*ALPHA*(np.dot(outputHiddenBias[:, 1:].T, deltaOutput) + GAMMA*weightsHO[1:, :])
 
-    weightsIH += ALPHA*np.dot(inputBias.T, deltaHidden)
-    weightsHO += ALPHA*np.dot(outputHiddenBias.T, deltaOutput)
+
+    # weightsIH += ALPHA*np.dot(inputBias.T, deltaHidden)
+    # weightsHO += ALPHA*np.dot(outputHiddenBias.T, deltaOutput)
     # TODO regression
     # weightsIH += 1/len(examples)*(GAMMA*(weightsIH.T-ALPHA*(delta1.T)))
 
@@ -84,3 +85,8 @@ while not converged:
         converged = True
 # print(delta1)
 print(f'Converged after {iterations} iterations')
+
+print('Testing:')
+for sample in examples:
+    print(f'Input: {sample}')
+    print(f'Output: {forwardPass(sample)}')
