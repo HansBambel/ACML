@@ -19,7 +19,6 @@ def forwardPass(x):
 
 
 examples = np.eye(8)
-# examples = [[1, 0, 0, 0, 0, 0, 0, 0]]
 y = examples
 weightsIH = np.random.rand(9, 3)
 weightsHO = np.random.rand(4, 8)
@@ -69,8 +68,6 @@ while not converged:
     # break
     m = len(samples)  # number of samples
     # update the bias weights
-    # weightsHO[0, :] = ALPHA/m * updateWeightsHO[0, :]
-    # weightsIH[0, :] = ALPHA/m * updateWeightsIH[0, :]
     weightsHO[0, :] -= ALPHA*updateWeightsHO[0, :]
     weightsIH[0, :] -= ALPHA*updateWeightsIH[0, :]
     # update the other weights
@@ -80,46 +77,6 @@ while not converged:
     # weightsIH[1:, :] = ALPHA/m * (updateWeightsIH[1:, :] + LAMBDA * weightsIH[1:, :])
     # weightsHO[1:, :] = ALPHA/m * (updateWeightsHO[1:, :] + LAMBDA * weightsHO[1:, :])
     # weightsIH[1:, :] = ALPHA/m * (updateWeightsIH[1:, :] + LAMBDA * weightsIH[1:, :])
-
-
-    #### Forward pass ####
-    # inputBias = np.concatenate((np.ones(len(samples)).reshape(-1, 1), samples), axis=1)
-    # hiddenInput = np.dot(inputBias, weightsIH)
-    # # print(f"hiddenInput.shape. Should be (numSamples, 3) {hiddenInput.shape}")
-    # activationHidden = sigmoid(hiddenInput)
-    # outputHiddenBias = np.concatenate((np.ones(len(samples)).reshape(-1, 1), activationHidden), axis=1)
-    # # print(f"outputHiddenBias.shape. Should be (numSamples, 4) {outputHiddenBias.shape}")
-    #
-    # inputLastLayer = np.dot(outputHiddenBias, weightsHO)
-    # yPred = sigmoid(inputLastLayer)
-    # # print(f"yPred: {yPred}")
-    # # print(f'y: {y}')
-    #
-    # #### Backprop now ####
-    # outputError = yPred - y
-    # # print("outputError")
-    # # print(outputError)
-    # # print(outputError.shape)
-    # deltaOutput = outputError * derivedSigmoid(yPred)
-    # # print(deltaOutput)
-    # # print(np.sum(outputError, axis=1))
-    # totalError = np.sum(outputError)#, axis=1)
-    #
-    # errorHidden = np.dot(deltaOutput, weightsHO.T)
-    # # print(errorHidden)
-    # deltaHidden = errorHidden[:, 1:] * derivedSigmoid(activationHidden)
-    #
-    # # # adapt the biases
-    # weightsIH[0, :] -= 1/len(samples)*ALPHA*np.dot(inputBias[:, 0].T, deltaHidden)
-    # weightsHO[0, :] -= 1/len(samples)*ALPHA*np.dot(outputHiddenBias[:, 0].T, deltaOutput)
-    # # adapt the weights
-    # weightsIH[1:, :] -= 1/len(samples)*ALPHA*(np.dot(inputBias[:, 1:].T, deltaHidden) + LAMBDA*weightsIH[1:, :])
-    # weightsHO[1:, :] -= 1/len(samples)*ALPHA*(np.dot(outputHiddenBias[:, 1:].T, deltaOutput) + LAMBDA*weightsHO[1:, :])
-
-    # weightsIH += ALPHA*np.dot(inputBias.T, deltaHidden)
-    # weightsHO += ALPHA*np.dot(outputHiddenBias.T, deltaOutput)
-    # TODO regression
-    # weightsIH += 1/len(examples)*(LAMBDA*(weightsIH.T-ALPHA*(delta1.T)))
 
     print(totalError)
     # if iterations > 10:
