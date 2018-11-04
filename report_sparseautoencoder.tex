@@ -1,0 +1,22 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+\usepackage{multicol}
+
+\title{Advanced Concepts of Machine Learning: Sparse Autoencoder}
+\author{Kevin Trebing (i6192338), Alberto Perez (fill in)}
+
+\begin{document}
+\maketitle
+
+\section{How to use}
+Execute the python file \textit{sparse\_autoencoder.py} with python3. An optimization will run that trains the autoencoder. Different parameters can be chosen, such as the learning rate $\alpha$ (called ALPHA) with default value $0.1$ and $\lambda$ (called LAMBDA) with default value $0.001$. Furthermore, the training stops when the total error of one epoch (i.e. seeing each training sample once) is below a certain threshold (default for this is $0.0001$.
+
+\section{Learning performance}
+a brief description of the learning performance of your network (how many examples does it need to converge, how long does that take, does it converge every time or do you have to be lucky with the parameters
+The network needs about $15.000-20.000$ epochs to converge. Note that it still does not learn the mapping perfectly, instead of zeros it most often leads to values around zero. The same goes for values of one, here it leads to values around one.
+
+\section{Interpretation of the learned weights}
+
+
+
+\end{document}
