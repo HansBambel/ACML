@@ -28,9 +28,11 @@ weightsHO = np.random.rand(4, 8)
 # print(forwardPass([[1, 0, 0, 0, 0, 0, 0, 0]]))
 
 batchSize = 4
-iterations = 0
 ALPHA = 0.1
-LAMBDA = 0.01
+LAMBDA = 0.001
+
+iterations = 0
+totalError = 0
 converged = False
 while not converged:
 # while iterations < 100000:
@@ -46,20 +48,20 @@ while not converged:
     updateWeightsIH = np.zeros((9, 3))
     updateWeightsHO = np.zeros((4, 8))
     for sample in samples:
-        # Forwardpass
+        ### Forwardpass ###
         activationInput = np.append([1], sample).reshape(-1, 1)
         inputToHidden = np.dot(activationInput.T, weightsIH)
         a2 = sigmoid(inputToHidden)
         activationHidden = np.append([1], a2).reshape(-1, 1)
         inputToOutput = np.dot(activationHidden.T, weightsHO)
         yPred = sigmoid(inputToOutput)
-        # Backpropagation
-        delta3 = yPred - sample
-        # print(f'delta3 {delta3.shape}')
         # print(f'activationHidden {activationHidden.shape}')
+
+        ### Backpropagation ###
+        # Error of Output
+        delta3 = yPred - sample
         delta2 = np.multiply(np.dot(delta3, weightsHO.T), derivedSigmoid(activationHidden.T))
         # print(f'delta2 {delta2.shape}')
-        # print(LAMBDA*weightsHO[1:, :]**2)
         updateWeightsHO += np.dot(activationHidden, delta3)
         updateWeightsIH += np.dot(activationInput, delta2[:, 1:])
         totalError += np.sum(delta3)
@@ -67,6 +69,7 @@ while not converged:
     # print(f'updateWeightsIH: {updateWeightsIH}')
     # print(f'updateWeightsHO: {updateWeightsHO}')
     m = len(samples)  # number of samples
+    # dividing by the number of samples makes it slower to converge
     # update the bias weights
     weightsHO[0, :] -= ALPHA*updateWeightsHO[0, :]
     weightsIH[0, :] -= ALPHA*updateWeightsIH[0, :]
@@ -74,16 +77,18 @@ while not converged:
     weightsHO[1:, :] -= ALPHA*(updateWeightsHO[1:, :] + LAMBDA*weightsHO[1:, :])
     weightsIH[1:, :] -= ALPHA*(updateWeightsIH[1:, :] + LAMBDA*weightsIH[1:, :])
 
-    print(totalError)
+    # if iterations%100==0:
+    print(f'Error after {iterations} iterations: {totalError}')
+
     if np.abs(totalError) <= 0.0001:
         converged = True
-# print(delta1)
-print(f'Converged after {iterations} iterations')
+print(f'Converged after {iterations} iterations with error {totalError}')
+
 
 print('Testing:')
 for sample in examples:
     print(f'Input: {sample}')
-    print(f'Output: {forwardPass(sample)}')
+    print(f'Output: {np.around(forwardPass(sample), 3)}')
 
 print(f'weightsIH: \n {weightsIH}')
 print(f'weightsHO: \n {weightsHO}')
