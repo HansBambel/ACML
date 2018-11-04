@@ -31,18 +31,18 @@ batchSize = 4
 ALPHA = 0.1
 LAMBDA = 0.001
 
-iterations = 0
+epochs = 0
 totalError = 0
 converged = False
 while not converged:
-# while iterations < 100000:
+# while epochs < 150000:
     totalError = 0
     # samples = examples[np.random.randint(len(examples), size=batchSize)]
     samples = np.random.permutation(examples)
     # samples = [[1, 0, 0, 0, 0, 0, 0, 0]]
     # print(samples)
     y = samples
-    iterations += 1
+    epochs += 1
     # forward pass --> backprop
     # 8 nodes+bias X 3 nodes+bias X 8 nodes
     updateWeightsIH = np.zeros((9, 3))
@@ -77,12 +77,12 @@ while not converged:
     weightsHO[1:, :] -= ALPHA*(updateWeightsHO[1:, :] + LAMBDA*weightsHO[1:, :])
     weightsIH[1:, :] -= ALPHA*(updateWeightsIH[1:, :] + LAMBDA*weightsIH[1:, :])
 
-    # if iterations%100==0:
-    print(f'Error after {iterations} iterations: {totalError}')
+    # if epochs%100==0:
+    print(f'Error after {epochs} epochs: {totalError}')
 
     if np.abs(totalError) <= 0.0001:
         converged = True
-print(f'Converged after {iterations} iterations with error {totalError}')
+print(f'Converged after {epochs} epochs with error {totalError}')
 
 
 print('Testing:')
