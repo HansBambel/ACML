@@ -28,8 +28,8 @@ weightsHO = np.random.rand(4, 8)
 # print(f'weightsIH {weightsIH}')
 
 batchSize = 4
-ALPHA = 0.1
-LAMBDA = 0.001
+ALPHA = 1.5
+LAMBDA = 0.00005
 
 epochs = 0
 totalError = 0
@@ -80,7 +80,7 @@ while not converged:
     # if epochs%100==0:
     print(f'Error after {epochs} epochs: {totalError}')
 
-    if np.abs(totalError) <= 0.0001:
+    if np.abs(totalError) <= 0.0005:
         converged = True
 print(f'Converged after {epochs} epochs with error {totalError}')
 

@@ -10,7 +10,7 @@
 \maketitle
 
 \section{How to use}
-Execute the python file \textit{sparse\_autoencoder.py} with python3. An optimization will run that trains the autoencoder. Different parameters can be chosen, such as the learning rate $\alpha$ (called ALPHA) with default value $0.1$ and $\lambda$ (called LAMBDA) with default value $0.001$. Furthermore, the training stops when the total error of one epoch (i.e. seeing each training sample once) is below a certain threshold (default for this is $0.0001$.
+Execute the python file \textit{sparse\_autoencoder.py} with python3. An optimization will run that trains the autoencoder. Different parameters can be chosen, such as the learning rate $\alpha$ (called ALPHA) with default value $1.5$ and $\lambda$ (called LAMBDA) with default value $0.00005$. Furthermore, the training stops when the total error of one epoch (i.e. seeing each training sample once) is below a certain threshold (default for this is $0.0005$.
 
 We have some issues in our code that cause the hidden layers activation not to converge to proper zeros and ones. A cause for this is probably the error calculation of the output layer. We use the summed up error to tell whether we are converged or not. Since the error values there can be positive and negative, a sum is not appropriate to calculate the error. But using the absolute values leads to no convergence at all, which means that we have an error in our back-propagation. Since we already spend about 12 hours on this we left it at the "wrong" convergence definition.
 
