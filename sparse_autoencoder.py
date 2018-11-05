@@ -15,6 +15,7 @@ def forwardPass(x):
     a2 = sigmoid(inputToHidden)
     inputToOutput = np.dot(np.append([1], a2), weightsHO)
     output = sigmoid(inputToOutput)
+    print(f'hidden layer activation: {np.around(a2, 3)}')
     return output
 
 
@@ -25,7 +26,6 @@ weightsHO = np.random.rand(4, 8)
 # weightsIH = np.zeros((9, 3))
 # weightsHO = np.zeros((4, 8))
 # print(f'weightsIH {weightsIH}')
-# print(forwardPass([[1, 0, 0, 0, 0, 0, 0, 0]]))
 
 batchSize = 4
 ALPHA = 0.1
@@ -39,8 +39,6 @@ while not converged:
     totalError = 0
     # samples = examples[np.random.randint(len(examples), size=batchSize)]
     samples = np.random.permutation(examples)
-    # samples = [[1, 0, 0, 0, 0, 0, 0, 0]]
-    # print(samples)
     y = samples
     epochs += 1
     # forward pass --> backprop
@@ -64,6 +62,8 @@ while not converged:
         # print(f'delta2 {delta2.shape}')
         updateWeightsHO += np.dot(activationHidden, delta3)
         updateWeightsIH += np.dot(activationInput, delta2[:, 1:])
+        # The total error should actually be the sum of the absolute errors, but
+        # this leads to no convergence ---> error somewhere else
         totalError += np.sum(delta3)
 
     # print(f'updateWeightsIH: {updateWeightsIH}')
@@ -71,11 +71,11 @@ while not converged:
     m = len(samples)  # number of samples
     # dividing by the number of samples makes it slower to converge
     # update the bias weights
-    weightsHO[0, :] -= ALPHA*updateWeightsHO[0, :]
-    weightsIH[0, :] -= ALPHA*updateWeightsIH[0, :]
+    weightsHO[0, :] -= ALPHA/m*updateWeightsHO[0, :]
+    weightsIH[0, :] -= ALPHA/m*updateWeightsIH[0, :]
     # update the other weights
-    weightsHO[1:, :] -= ALPHA*(updateWeightsHO[1:, :] + LAMBDA*weightsHO[1:, :])
-    weightsIH[1:, :] -= ALPHA*(updateWeightsIH[1:, :] + LAMBDA*weightsIH[1:, :])
+    weightsHO[1:, :] -= ALPHA*(updateWeightsHO[1:, :]/m + LAMBDA*weightsHO[1:, :])
+    weightsIH[1:, :] -= ALPHA*(updateWeightsIH[1:, :]/m + LAMBDA*weightsIH[1:, :])
 
     # if epochs%100==0:
     print(f'Error after {epochs} epochs: {totalError}')
