@@ -43,19 +43,11 @@ for i,value in enumerate(alphaValues):
     converged = False
     epochs = 0
 
-    #for i in range(0,500):
-        #print ('This is i ')
-        #print(i)
     while not converged:
-    # while epochs < 150000:
         totalError = 0
         # samples = examples[np.random.randint(len(examples), size=batchSize)]
         samples = np.random.permutation(examples)
-        # samples = examples
-        # samples = [[1, 0, 0, 0, 0, 0, 0, 0]]
-        # print(samples)
         y = samples
-        #print(samples)
         epochs += 1
         # forward pass --> backprop
         # 8 nodes+bias X 3 nodes+bias X 8 nodes
@@ -99,13 +91,7 @@ for i,value in enumerate(alphaValues):
         if np.abs(totalError) <= 0.005:
             converged = True
 
-        # if epochs%25 == 0:
         errors[i].append(totalError)
-        #     if epochs <= 55:
-        #         plt.plot(epochs, totalError, 'o', color=colors[i], label=f'Alpha = {alphaValues[i]}')
-        #
-        #     plt.plot(epochs, totalError, 'o', color=colors[i])
-        #     print(f'Error after {epochs} epochs: {totalError}') #Only printing every 50
 
     print(f'Converged after {epochs} epochs with error {totalError}')
     stored[i,0] = epochs
