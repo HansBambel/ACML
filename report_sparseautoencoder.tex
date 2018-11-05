@@ -3,7 +3,7 @@
 \usepackage{multicol}
 
 \title{Advanced Concepts of Machine Learning: Sparse Autoencoder}
-\author{Kevin Trebing (i6192338), Alberto Perez (fill in)}
+\author{Kevin Trebing (i6192338), Alberto Perez (i6201157)}
 
 \begin{document}
 \maketitle
@@ -11,12 +11,31 @@
 \section{How to use}
 Execute the python file \textit{sparse\_autoencoder.py} with python3. An optimization will run that trains the autoencoder. Different parameters can be chosen, such as the learning rate $\alpha$ (called ALPHA) with default value $0.1$ and $\lambda$ (called LAMBDA) with default value $0.001$. Furthermore, the training stops when the total error of one epoch (i.e. seeing each training sample once) is below a certain threshold (default for this is $0.0001$.
 
+%Default value is alpha = 5
+
 \section{Learning performance}
-a brief description of the learning performance of your network (how many examples does it need to converge, how long does that take, does it converge every time or do you have to be lucky with the parameters
-The network needs about $15.000-20.000$ epochs to converge. Note that it still does not learn the mapping perfectly, instead of zeros it most often leads to values around zero. The same goes for values of one, here it leads to values around one.
+The network needs about $15.000-20.000$ epochs to converge. Note that it still does not learn the mapping perfectly, instead of zeros it most often leads to values around zero. The same goes for values of one, here it leads to values around one. The time it takes is about five seconds for this. 
+
+\section{Parameters}
+
+
+For higher values of alpha, it is more likely that the system will converge at the wrong stability point. For high values, decreasing the size of the error used for determining convergence can decrease the chances of wrong stability points. However this also requires many iterations to achieve convergence.
+
+The highest alpha value which admits for a reasonable amount of convergence is 5. For such a value, convergence does not take more than 2000 epochs, however sometimes the loop can go on for indefinite time. Reducing the value of alpha more to around 0.8 gives a  more robust probability of  convergence. However obtaining this convergence usually takes longer. To reduce the time taken a regularisation term is added; this is represented by the lamda factor
+
+
+Lamba is not vey useful for large values of alpha. However for small values of alpha (0.8-2), lambda can lead to a much faster convergence. 
+
+%advantages regularisation
+%Not always the case for alpha is 5
+%To avoid this  the error required for convergence must be decreased
+%Adding up errors might mean positive and negative errors are cancelling each other out?
+
+
 
 \section{Interpretation of the learned weights}
 
+%I will do this tomorrow
 
 
 \end{document}
