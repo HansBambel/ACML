@@ -20,35 +20,19 @@ def forwardPass(x):
 
 
 examples = np.eye(8)
-y = examples
 
 weightsIH = np.random.rand(9, 3)
 weightsHO = np.random.rand(4, 8)
-
-#weightsIH = np.zeros((9, 3))
-#weightsHO = np.zeros((4, 8))
-# print(f'weightsIH {weightsIH}')
-# print(forwardPass([[1, 0, 0, 0, 0, 0, 0, 0]]))
-
-batchSize = 4
-ALPHA = 0.1
-#LAMBDA = 0.0001
 LAMBDA = 0.001
 
-epochs = 0
-totalError = 0
-converged = False
+stored = np.zeros((6, 2))  # Stores number epochs and total error
+alphaValues = [2, 1.5, 1, 0.8, 0.5, 0.2]
+colors = ['yellow', 'blue', 'red', 'black', 'orange', 'green']
+errors = [[] for i in alphaValues]
 
-stored = np.zeros((6, 2))
-alphaValues = [4, 2, 1.6, 0.8, 0.4, 0.2]
-tempcolors = ['red', 'blue', 'green', 'yellow', 'black', 'orange']
-errors = [[], [], [], [], [], []]
-# alphaValues = [0.8]
-
-for i, value in enumerate(alphaValues):
-
-    print(i)
-    print(value)
+#alphaValues = [0.8]
+for i,value in enumerate(alphaValues):
+    print (f'Alpha: {value}')
     print('***')
 
     weightsIH = np.random.rand(9, 3)
@@ -60,20 +44,15 @@ for i, value in enumerate(alphaValues):
     epochs = 0
 
     while not converged:
-    # while epochs < 150000:
         totalError = 0
         # samples = examples[np.random.randint(len(examples), size=batchSize)]
-        #samples = np.random.permutation(examples)
-        samples = examples
-        # samples = [[1, 0, 0, 0, 0, 0, 0, 0]]
-        # print(samples)
+        samples = np.random.permutation(examples)
         y = samples
         epochs += 1
         # forward pass --> backprop
         # 8 nodes+bias X 3 nodes+bias X 8 nodes
         updateWeightsIH = np.zeros((9, 3))
         updateWeightsHO = np.zeros((4, 8))
-
         for sample in samples:
             ### Forwardpass ###
             activationInput = np.append([1], sample).reshape(-1, 1)
@@ -83,26 +62,17 @@ for i, value in enumerate(alphaValues):
             inputToOutput = np.dot(activationHidden.T, weightsHO)
             yPred = sigmoid(inputToOutput)
             # print(f'activationHidden {activationHidden.shape}')
-            #print(yPred)
 
             ### Backpropagation ###
             # Error of Output
             delta3 = yPred - sample
-            #print('This is delta 3')
-            #print(delta3)
-
             delta2 = np.multiply(np.dot(delta3, weightsHO.T), derivedSigmoid(activationHidden.T))
-            #print('This is delta 2')
-            #print(delta2)
             # print(f'delta2 {delta2.shape}')
-            #print(activationHidden)
-            #print(delta3)
             updateWeightsHO += np.dot(activationHidden, delta3)
-            #print('This is updateWeight')
-            #print(updateWeightsHO)
             updateWeightsIH += np.dot(activationInput, delta2[:, 1:])
+            # The total error should actually be the sum of the absolute errors, but
+            # this leads to no convergence ---> error somewhere else
             totalError += np.sum(delta3)
-            #print('LoopOver')
 
         # print(f'updateWeightsIH: {updateWeightsIH}')
         # print(f'updateWeightsHO: {updateWeightsHO}')
@@ -112,23 +82,21 @@ for i, value in enumerate(alphaValues):
         weightsHO[0, :] -= ALPHA/m*updateWeightsHO[0, :]
         weightsIH[0, :] -= ALPHA/m*updateWeightsIH[0, :]
         # update the other weights
-        weightsHO[1:, :] -= ALPHA/((updateWeightsHO[1:, :])/m + LAMBDA*weightsHO[1:, :])
-        weightsIH[1:, :] -= ALPHA/((updateWeightsIH[1:, :])/m + LAMBDA*weightsIH[1:, :])
+        weightsHO[1:, :] -= ALPHA*(updateWeightsHO[1:, :]/m + LAMBDA*weightsHO[1:, :])
+        weightsIH[1:, :] -= ALPHA*(updateWeightsIH[1:, :]/m + LAMBDA*weightsIH[1:, :])
 
         # if epochs%100==0:
-        # print(f'Error after {epochs} epochs: {totalError}') #Only printing every 50 (below)
+        #print(f'Error after {epochs} epochs: {totalError}') #Only printing every 50 (below)
 
         if np.abs(totalError) <= 0.005:
             converged = True
 
-        if epochs % 50 == 0:
-            # plt.plot(epochs, totalError, 'o', color=tempcolors[i])
-            errors[i].append([epochs, totalError])
-            print(f'Error after {epochs} epochs: {totalError}')  # Only printing every 50
+        errors[i].append(totalError)
 
     print(f'Converged after {epochs} epochs with error {totalError}')
-    stored[i, 0] = epochs
-    stored[i, 1] = totalError
+    stored[i,0] = epochs
+    stored[i,1] = totalError
+
 
     print('Testing:')
     for sample in examples:
@@ -139,9 +107,13 @@ for i, value in enumerate(alphaValues):
     print(f'weightsHO: \n {np.around(weightsHO, 1)}')
 
 print(' ')
-print(f'Stored: \n {np.around(stored, 5)}')
-for i, c in enumerate(tempcolors):
-    plt.plot(errors[i], 'o', color=c, label=alphaValues[i])
-plt.axis([0, 30000, -0.5, 1])
+print (f'Stored: \n {np.around(stored, 5)}')
+# plt.axis([0, 30000, -0.5, 1])
+# print(errors)
+for i, e in enumerate(errors):
+    plt.plot(e, color=colors[i], label=f'Alpha = {alphaValues[i]}')
+plt.ylim(0, 0.8)
+plt.xlabel('Epoch')
+plt.ylabel('Error')
 plt.legend()
 plt.show()
