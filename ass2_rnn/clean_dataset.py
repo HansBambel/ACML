@@ -18,4 +18,4 @@ df = pandas.read_csv('nips_papers.csv')
 with open('nips_papers_abstract.txt', 'w', encoding='utf-8') as outputfile:
     for m in df['abstract']:
         if m != 'Abstract Missing':
-            outputfile.write(m)
+            outputfile.write(m+'\n')
