@@ -16,6 +16,9 @@ import numpy as np
 df = pandas.read_csv('nips_papers.csv')
 # print(df['Plot'])
 with open('nips_papers_abstract.txt', 'w', encoding='utf-8') as outputfile:
+    num = 0
     for m in df['abstract']:
+        num += 1
         if m != 'Abstract Missing':
             outputfile.write(m+'\n')
+print(f'{num} abstracts saved.')
