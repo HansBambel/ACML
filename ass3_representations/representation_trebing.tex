@@ -1,0 +1,36 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+\usepackage{multicol}
+
+\title{Advanced Concepts of Machine Learning: Representations}
+\author{Kevin Trebing (i6192338)}
+
+\begin{document}
+\maketitle
+
+\section{Representation for example 1 (Movie theatre): Relational representation}
+In this example a relational representation is the most feasible, since a classification for being a good movie can be dependent on many different features. These features can be stored efficiently using multiple tables. Since the cast can be mapped from one movie to multiple actors a multi-instance approach would result in multiple table entries for one movie where only the actor name changes. Using the following relations is more efficient:
+movieInfo(movie, directorName, genre, age-restriction, reboot), director(movie, directorName, DirectorOscars), movieActor(movie, name), actor(name, actorOscars), year(movie, year). The return value is the box office result.
+
+\begin{itemize}
+\item $bor(M, 28mio)$ :- $movieInfo(M, DN, $'action'$, AR, true), director(M, DN, DO), $
+
+\indent\indent\indent\indent$movieActor(M, N), actor(N, AO), genre(M, $'action'$, AR), sum(DO, AO) > 2$
+
+In natural language: A movie's box office result is \$28 million if the genre is 'action', the movie is a reboot and the the number of Oscars in total is greater than 2.
+
+\item $bor(M, 15mio)$ :- $movieInfo(M, DN, $'comedy'$, $'restricted'$, R), $
+
+ 
+\indent\indent\indent\indent$movieActor(M, $'Ryan Reynolds'$), year(M, Y), Y > 2012$
+
+In natural language: A movie's box office result is \$15 million if it is R-rated and has 'Ryan Reynolds' as an actor and the movie came out later than 2012.
+
+\item $bor(M, 80mio)$ :- $director(M, $'Christopher Nolan'$, DO)$
+
+This example should be self-explanatory.
+\end{itemize}
+
+This approach is also useful for updating the database. If an actor wins an oscar only the entry in the actor table needs to be updated once. In a multi-instance representation all entries of the actor need to be changed.
+
+\end{document}
