@@ -10,27 +10,55 @@
 
 \section{Representation for example 1 (Movie theatre): Relational representation}
 In this example a relational representation is the most feasible, since a classification for being a good movie can be dependent on many different features. These features can be stored efficiently using multiple tables. Since the cast can be mapped from one movie to multiple actors a multi-instance approach would result in multiple table entries for one movie where only the actor name changes. Using the following relations is more efficient:
-movieInfo(movie, directorName, genre, age-restriction, reboot), director(movie, directorName, DirectorOscars), movieActor(movie, name), actor(name, actorOscars), year(movie, year). The return value is the box office result.
+movieInfo(movie, directorName, genre, age-restriction, reboot, box-office-result), director(movie, directorName, DirectorOscars), movieActor(movie, name), actor(name, actorOscars), year(movie, year).
 
 \begin{itemize}
-\item $bor(M, 28mio)$ :- $movieInfo(M, DN, $'action'$, AR, true), director(M, DN, DO), $
+\item $pos(M)$ :- $movieInfo(M, \_, $'action'$, \_, true, BOR), director(M, \_, DO), $
 
-\indent\indent\indent\indent$movieActor(M, N), actor(N, AO), genre(M, $'action'$, AR), sum(DO, AO) > 2$
+\indent\indent\indent\indent$movieActor(M, N), actor(N, AO), sum(DO, AO) > 2, BOR > \$28 mio$
 
-In natural language: A movie's box office result is \$28 million if the genre is 'action', the movie is a reboot and the the number of Oscars in total is greater than 2.
+In natural language: A movie is profitable if the box office result was bigger than \$28 million, the genre is 'action', the movie is a reboot and the the number of Oscars in total is greater than 2.
 
-\item $bor(M, 15mio)$ :- $movieInfo(M, DN, $'comedy'$, $'restricted'$, R), $
+\item $pos(M)$ :- $movieInfo(M, \_, $'comedy'$, $'restricted'$, \_, \_), $
 
  
-\indent\indent\indent\indent$movieActor(M, $'Ryan Reynolds'$), year(M, Y), Y > 2012$
+\indent\indent\indent\indent$ movieActor(M, $'Ryan Reynolds'$), year(M, Y), Y > 2012$
 
-In natural language: A movie's box office result is \$15 million if it is R-rated and has 'Ryan Reynolds' as an actor and the movie came out later than 2012.
+In natural language: A movie is profitable if it is R-rated and has 'Ryan Reynolds' as an actor and the movie came out later than 2012.
 
-\item $bor(M, 80mio)$ :- $director(M, $'Christopher Nolan'$, DO)$
+\item $pos(M)$ :- $director(M, $'Christopher Nolan'$, _)$
 
 This example should be self-explanatory.
 \end{itemize}
 
 This approach is also useful for updating the database. If an actor wins an oscar only the entry in the actor table needs to be updated once. In a multi-instance representation all entries of the actor need to be changed.
+
+\section{Representation for example 4 (Spam or ham): attribute valued representation}
+For this example we use an attribute valued representation. For this we can use a table for multiple examples:
+
+\begin{tabular}{c|c|c||c}
+	subject & knownSender & domain & class \\
+	\hline
+	supplements & no & unknown & spam \\
+	money & yes & bank & ham \\
+	unknown & yes & gmail & ham \\
+	money & no & unknown & spam \\
+	course & no & university & ham \\
+	supplements & no & university & ham \\
+	arabian prince & no & hotmail & ham \\
+
+\end{tabular}
+
+
+Possible hypthesis:
+\begin{itemize}
+\item $ham$ :- $spamorham(\_, \_, university) $
+\item $ham$ :- $spamorham(\_, yes, \_, \_)$
+\item $spam$ :- $spamorham($'arabian prince'$, no, \_)$
+\end{itemize}
+
+We could also use an boolean representation, but then we would have to force all our attributes where we have more than two values into a boolean representation which could lead to a combinatorial explosion. If we reduce the granularity of the attributes to just boolean representations we could lose information.
+
+Using a multi-instance representation would not give us much of a help here, since
 
 \end{document}
