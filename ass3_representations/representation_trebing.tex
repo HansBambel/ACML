@@ -1,6 +1,7 @@
 \documentclass[a4paper]{article}
 \usepackage{amsmath}
 \usepackage{multicol}
+\usepackage{graphics}
 
 \title{Advanced Concepts of Machine Learning: Representations}
 \author{Kevin Trebing (i6192338)}
@@ -9,52 +10,107 @@
 \maketitle
 
 \section{Representation for example 1 (Movie theatre): Relational representation}
-In this example a relational representation is the most feasible, since a classification for being a good movie can be dependent on many different features. These features can be stored efficiently using multiple tables. Since the cast can be mapped from one movie to multiple actors a multi-instance approach would result in multiple table entries for one movie where only the actor name changes. Using the following relations is more efficient:
-movieInfo(movie, directorName, genre, age-restriction, reboot, box-office-result), director(movie, directorName, DirectorOscars), movieActor(movie, name), actor(name, actorOscars), year(movie, year).
+In this example a relational representation is the most feasible, since a classification for being a good movie can be dependent on many different features. These features can be stored efficiently using multiple tables. 
 
+%movieInfo: \\
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+movie & directorName & genre & age-restriction & year & oscars \\
+\hline
+Interstellar & Christopher Nolan & Adventure & PG-13 & 2014 & 1 \\
+Inception & Christopher Nolan & Action & PG-13 & 2010 & 4 \\
+LotR: Return of the King & Peter Jackson & Action & PG-13 & 2003 & 11 \\
+\hline
+\end{tabular}
+}
+
+\smallskip
+\resizebox{\columnwidth}{!}{
+%actor: \\
+\begin{tabular}{|c|c|}
+\hline
+actorName & oscars \\
+\hline
+Leonardo DiCaprio & 1 \\
+Matthew McConaughey & 1 \\
+Elijah Wood & 0 \\
+Tom Hardy & 0 \\
+\hline
+\end{tabular}
+\quad
+%movieActor: 
+\begin{tabular}{|c|c|}
+\hline
+movie & actor \\
+\hline
+Interstellar & Matthew McConaughey \\
+Inception & Leonardo DiCaprio \\
+Inception & Tom Hardy \\
+LotR: Return of the King & Elijah Wood \\
+\hline
+\end{tabular}
+}
+
+\smallskip
+%director: \\
+\begin{tabular}{|c|c|}
+\hline
+directorName & oscars \\
+\hline
+Christopher Nolan & 0 \\
+Peter Jackson & 3 \\
+\hline
+\end{tabular}
+
+\medskip
+Hypothesis language:
 \begin{itemize}
-\item $pos(M)$ :- $movieInfo(M, \_, $'action'$, \_, true, BOR), director(M, \_, DO), $
+\item pos(M) :- movieInfo(M, DN, \_, \_, \_, \_), movieActor(M, AN), actor(AN, AO), director(DN, DO), sum(AO, DO) $>$ 2
 
-\indent\indent\indent\indent$movieActor(M, N), actor(N, AO), sum(DO, AO) > 2, BOR > \$28 mio$
+In natural language: A movie is profitable if the amount of oscars of the director and at least one actor is bigger than 2.
 
-In natural language: A movie is profitable if the box office result was bigger than \$28 million, the genre is 'action', the movie is a reboot and the the number of Oscars in total is greater than 2.
-
-\item $pos(M)$ :- $movieInfo(M, \_, $'comedy'$, $'restricted'$, \_, \_), $
-
- 
-\indent\indent\indent\indent$ movieActor(M, $'Ryan Reynolds'$), year(M, Y), Y > 2012$
+\item pos(M) :- movieInfo(M, \_, 'comedy', 'R', Y, \_, \_), movieActor(M, 'Ryan Reynolds'), Y $>$ 2012
 
 In natural language: A movie is profitable if it is R-rated and has 'Ryan Reynolds' as an actor and the movie came out later than 2012.
 
-\item $pos(M)$ :- $director(M, $'Christopher Nolan'$, _)$
+\item pos(M) :- director(M, 'Christopher Nolan', \_)
 
 This example should be self-explanatory.
 \end{itemize}
 
-This approach is also useful for updating the database. If an actor wins an oscar only the entry in the actor table needs to be updated once. In a multi-instance representation all entries of the actor need to be changed.
+This approach is also useful for updating the database. If an actor wins an oscar only the entry in the actor table needs to be updated once. In a multi-instance representation all entries of the actor need to be changed. Furthermore, since the cast of a movie can be mapped from one movie to multiple actors a multi-instance approach would result in multiple table entries for one movie where only the actor name changes. This would be redundant and can be avoided using a relational representation.
+
 
 \section{Representation for example 4 (Spam or ham): attribute valued representation}
 For this example we use an attribute valued representation. For this we can use a table for multiple examples:
 
-\begin{tabular}{c|c|c||c}
+\begin{tabular}{|c|c|c||c|}
+	\hline
 	subject & knownSender & domain & class \\
 	\hline
-	supplements & no & unknown & spam \\
+	supplements & no & other & spam \\
 	money & yes & bank & ham \\
-	unknown & yes & gmail & ham \\
-	money & no & unknown & spam \\
+	other & yes & gmail & ham \\
+	money & no & other & spam \\
 	course & no & university & ham \\
 	supplements & no & university & ham \\
 	arabian prince & no & hotmail & ham \\
-
+	\hline
 \end{tabular}
 
-
+\medskip
 Possible hypthesis:
 \begin{itemize}
-\item $ham$ :- $spamorham(\_, \_, university) $
-\item $ham$ :- $spamorham(\_, yes, \_, \_)$
-\item $spam$ :- $spamorham($'arabian prince'$, no, \_)$
+\item ham :- spamorham(\_, \_, university) 
+
+Meaning: We regard the email as non-spam when the sender domain is a university. (This actually seemed to be the case at my old university. We tried to get sent to the spam folder for a while. Nothing worked.)
+\item ham :- spamorham(\_, yes, \_, \_)
+
+Meaning: If we know the sender (e.g. from the contact book) we regard the mail as non-spam.
+\item spam :- spamorham('arabian prince', no, \_)
+
+Meaning: If the subject is about an Arabian prince and we do not know the sender, it is classified as spam.
 \end{itemize}
 
 We could also use an boolean representation, but then we would have to force all our attributes where we have more than two values into a boolean representation which could lead to a combinatorial explosion. If we reduce the granularity of the attributes to just boolean representations we could lose information.
