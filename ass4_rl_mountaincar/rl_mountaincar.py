@@ -121,14 +121,13 @@ def runSimulation(qValues):
 np.random.seed(42)
 GAMMA = 0.9
 ALPHA = 0.03
-episodes = 50
+episodes = 10000
 qValues = np.zeros((len(f1Bins), len(f2Bins), env.action_space.n))
-# with open('qTable_500_episodes.npy', 'rb') as f:
-#     qValues = np.load(f)
-train(qValues, GAMMA, ALPHA, episodes, save=True, backtracking=True)
+with open('qTable_10000_episodes_noBacktracking.npy', 'rb') as f:
+    qValues = np.load(f)
+# train(qValues, GAMMA, ALPHA, episodes, save=True, backtracking=False)
 
-# runSimulation(qValues)
-print(qValues)
+# plotValues(qValues, episodes)
+runSimulation(qValues)
+# print(qValues)
 print(np.max(qValues[qValues < 0]))
-
-plotValues(qValues, episodes)
