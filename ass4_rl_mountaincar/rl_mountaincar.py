@@ -3,8 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+gym.envs.register(
+    id='MountainCarMyEasyVersion-v0',
+    entry_point='gym.envs.classic_control:MountainCarEnv',
+    max_episode_steps=100000,      # MountainCar-v0 uses 200
+)
+env = gym.make('MountainCarMyEasyVersion-v0')
 slow = False
-env = gym.make("MountainCar-v0")
+# env = gym.make("MountainCar-v0")
 print(env.observation_space.low)
 print(env.observation_space.high)
 bins = 20
@@ -24,7 +30,7 @@ def getIndex(obs):
     normedObs = (obs - env.observation_space.low) / binSizes
     return [int(normedObs[0])-1, int(normedObs[1])-1]
 
-episodes = 20000
+episodes = 1000
 for i in range(episodes+1):
     totalReward = 0
     observation = env.reset()
@@ -38,9 +44,9 @@ for i in range(episodes+1):
         timesteps += 1
         # TODO exploration vs exploitation
         # epsilon greedy maybe?
-        epsK = 1/np.min(stateVisits[i1, i2])
+        # epsK = 1/(np.min(stateVisits[i1, i2]) + 1)
         # print(epsK)
-        # epsK = 0.1
+        epsK = 0.05
         if np.random.random() < epsK:
             action = np.random.choice(len(qValues[i1, i2]))
         else:
@@ -69,8 +75,8 @@ for i in range(episodes+1):
         qValues[oldi1, oldi2, oldaction] += alpha * (GAMMA * qValues[i1, i2, action] - qValues[oldi1, oldi2, oldaction])
         stateVisits[oldi1, oldi2, oldaction] += 1
         i1, i2, action = oldi1, oldi2, oldaction
-    if i%50 == 0:
-        print(f"Episode {i:4d} finished after {timesteps} timesteps with reward {totalReward}.")
+    # if i%50 == 0:
+    print(f"Episode {i:4d} finished after {timesteps} timesteps with reward {totalReward}.")
 
 # Simulate with learned Q-Values
 done = False
