@@ -42,15 +42,13 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
             # epsilon greedy maybe?
             # epsK = 1/(np.min(stateVisits[i1, i2]) + 1)
             # print(epsK)
-            epsK = 0.1
-            if np.random.random() < epsK:
-                action = np.random.choice(len(qValues[i1, i2]))
-            else:
-                # softmax = np.exp(qValues[i1, i2])/np.sum(np.exp(qValues[i1, i2]))
-                # action = np.random.choice(len(qValues[i1, i2]), p=softmax)
-                action = np.argmax(qValues[i1, i2])
-
-            # # print(qValues[i1, i2], softmax)
+            # epsK = 0.1
+            # if np.random.random() < epsK:
+            #     action = np.random.choice(len(qValues[i1, i2]))
+            # else:
+            #     # softmax = np.exp(qValues[i1, i2])/np.sum(np.exp(qValues[i1, i2]))
+            #     # action = np.random.choice(len(qValues[i1, i2]), p=softmax)
+            action = np.argmax(qValues[i1, i2])
 
             # action = env.action_space.sample()  # your agent here (this takes random actions)
             observation, reward, done, info = env.step(action)
@@ -58,10 +56,11 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
             newi1, newi2 = getIndex(observation)
 
             # update Q-Value
-            alpha = 1/(stateVisits[i1, i2, action]+1)
-            alpha = max(alpha, ALPHA)
-            qValues[i1, i2, action] += alpha * (reward + GAMMA * np.max(qValues[newi1, newi2]) - qValues[i1, i2, action])
-            stateVisits[i1, i2, action] += 1
+            # alpha = 1/(stateVisits[i1, i2, action]+1)
+            # alpha = max(alpha, ALPHA)
+            # qValues[i1, i2, action] += alpha * (reward + GAMMA * np.max(qValues[newi1, newi2]) - qValues[i1, i2, action])
+            qValues[i1, i2, action] = reward + GAMMA * np.max(qValues[newi1, newi2])
+            # stateVisits[i1, i2, action] += 1
             updateQ.append([i1, i2, action])
             i1, i2 = newi1, newi2
             if done:
@@ -71,16 +70,17 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
             # update q-values in reverse order --> faster convergence
             while len(updateQ) > 0:
                 oldi1, oldi2, oldaction = updateQ.pop()
-                alpha = 1/(stateVisits[oldi1, oldi2, oldaction]+1)
-                alpha = max(alpha, ALPHA)
-                qValues[oldi1, oldi2, oldaction] += alpha * (GAMMA * np.max(qValues[i1, i2]) - qValues[oldi1, oldi2, oldaction])
-                stateVisits[oldi1, oldi2, oldaction] += 1
+                # alpha = 1/(stateVisits[oldi1, oldi2, oldaction]+1)
+                # alpha = max(alpha, ALPHA)
+                # qValues[oldi1, oldi2, oldaction] += alpha * (GAMMA * np.max(qValues[i1, i2]) - qValues[oldi1, oldi2, oldaction])
+                qValues[oldi1, oldi2, oldaction] = reward + GAMMA * np.max(qValues[i1, i2])
+                # stateVisits[oldi1, oldi2, oldaction] += 1
                 i1, i2, action = oldi1, oldi2, oldaction
         if i%10 == 0:
             if backtracking:
-                plotValues(qValues, i, save=True, folder='backtracking')
+                plotValues(qValues, i, GAMMA, save=True, folder='backtracking')
             else:
-                plotValues(qValues, i, save=True, folder='noBacktracking')
+                plotValues(qValues, i, GAMMA, save=True, folder='noBacktracking')
         # save Q-Table
         if save:
             with open(f'qTable_{episodes}_episodes.npy', 'wb') as f:
@@ -91,9 +91,9 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
     print(f'Highest reward: {np.max(rewards)}')
     return rewards
 
-def plotValues(qValues, episodes, save=False, folder='normal'):
+def plotValues(qValues, episodes, gamma, save=False, folder='normal'):
     fig, ax = plt.subplots()
-    ax.set_title(f'Value function of states using Q-Learning with {episodes} episodes')
+    ax.set_title(f'Value function of states with {episodes} episodes. Gamma: {gamma}')
     plt.imshow(np.max(qValues, axis=2))
     # plt.xlabel('Position')
     # plt.ylabel('Velocity')
@@ -124,16 +124,16 @@ def runSimulation(qValues):
 
 
 np.random.seed(42)
-GAMMA = 0.9999
+GAMMA = 0.999
 # this alpha is actually a lowerbound
 ALPHA = 0.1
 episodes = 1000
-qValues = np.ones((len(f1Bins), len(f2Bins), env.action_space.n))*-10
+qValues = np.zeros((len(f1Bins), len(f2Bins), env.action_space.n))
 # with open('qTable_500_episodes_noBacktracking.npy', 'rb') as f:
 #     qValues = np.load(f)
-allRewards = train(qValues, GAMMA, ALPHA, episodes, save=False, backtracking=False)
+allRewards = train(qValues, GAMMA, ALPHA, episodes, save=True, backtracking=True)
 
-plotValues(qValues, episodes)
+plotValues(qValues, episodes, GAMMA)
 fig, ax = plt.subplots()
 ax.plot(allRewards)
 ax.set_title('Rewards over time')
