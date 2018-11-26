@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 gym.envs.register(
     id='MountainCarMyEasyVersion-v0',
     entry_point='gym.envs.classic_control:MountainCarEnv',
-    max_episode_steps=100000,      # MountainCar-v0 uses 200
+    max_episode_steps=10000,      # MountainCar-v0 uses 200
 )
 env = gym.make('MountainCarMyEasyVersion-v0')
 # env = gym.make("MountainCar-v0")
@@ -49,6 +49,7 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
                 # softmax = np.exp(qValues[i1, i2])/np.sum(np.exp(qValues[i1, i2]))
                 # action = np.random.choice(len(qValues[i1, i2]), p=softmax)
                 action = np.argmax(qValues[i1, i2])
+
             # # print(qValues[i1, i2], softmax)
 
             # action = env.action_space.sample()  # your agent here (this takes random actions)
@@ -86,7 +87,7 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
                 np.save(f, qValues)
         # save reward for later plotting
         rewards.append(totalReward)
-        print(f"Episode {i:4d} finished after {timesteps} timesteps with reward {totalReward}.")
+        print(f"Episode {i:4d} finished after {timesteps:5d} timesteps with reward {totalReward:5.0f}.")
     print(f'Highest reward: {np.max(rewards)}')
     return rewards
 
@@ -123,14 +124,14 @@ def runSimulation(qValues):
 
 
 np.random.seed(42)
-GAMMA = 0.9
+GAMMA = 0.9999
 # this alpha is actually a lowerbound
-ALPHA = 0.03
-episodes = 10000
-qValues = np.zeros((len(f1Bins), len(f2Bins), env.action_space.n))
+ALPHA = 0.1
+episodes = 1000
+qValues = np.ones((len(f1Bins), len(f2Bins), env.action_space.n))*-10
 # with open('qTable_500_episodes_noBacktracking.npy', 'rb') as f:
 #     qValues = np.load(f)
-allRewards = train(qValues, GAMMA, ALPHA, episodes, save=True, backtracking=False)
+allRewards = train(qValues, GAMMA, ALPHA, episodes, save=False, backtracking=False)
 
 plotValues(qValues, episodes)
 fig, ax = plt.subplots()
