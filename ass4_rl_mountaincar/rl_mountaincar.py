@@ -62,7 +62,7 @@ def train(qValues, binSizes, GAMMA, episodes=50, save=False, backtracking=False)
         # save reward for later plotting
         rewards.append(totalReward)
         print(f"Episode {i:4d} finished after {timesteps:5d} timesteps with reward {totalReward:5.0f}.")
-    print(f'Highest reward: {np.max(rewards)}')
+    print(f'Highest reward in training: {np.max(rewards)}')
     return rewards
 
 def plotValues(qValues, episodes, gamma, save=False, folder='normal'):
@@ -97,8 +97,6 @@ def runSimulation(qValues, binSizes):
     print(f'Simulation ended with total reward: {totalReward}')
 
 
-
-np.random.seed(42)
 bins = 50
 GAMMA = 0.995
 episodes = 1000
