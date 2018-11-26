@@ -12,55 +12,33 @@ env = gym.make('MountainCarMyEasyVersion-v0')
 # env = gym.make("MountainCar-v0")
 # print(env.observation_space.low)
 # print(env.observation_space.high)
-bins = 50
-
-f1Bins = np.linspace(env.observation_space.low[0], env.observation_space.high[0], bins)
-f2Bins = np.linspace(env.observation_space.low[1], env.observation_space.high[1], bins)
-binSizes = (env.observation_space.high - env.observation_space.low) / bins
-print(f1Bins)
-print(f2Bins)
-stateVisits = np.zeros((len(f1Bins), len(f2Bins), env.action_space.n))
 
 
-def getIndex(obs):
+
+def getIndex(obs, binSizes):
     normedObs = (obs - env.observation_space.low) / binSizes
     return [int(normedObs[0])-1, int(normedObs[1])-1]
 
 
-def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
+def train(qValues, binSizes, GAMMA, episodes=50, save=False, backtracking=False):
     rewards = []
     for i in range(episodes+1):
         totalReward = 0
         observation = env.reset()
-        i1, i2 = getIndex(observation)
+        i1, i2 = getIndex(observation, binSizes)
         done = False
         timesteps = 0
         updateQ = []
         while not done:
             timesteps += 1
-            # exploration vs exploitation
-            # epsilon greedy maybe?
-            # epsK = 1/(np.min(stateVisits[i1, i2]) + 1)
-            # print(epsK)
-            # epsK = 0.1
-            # if np.random.random() < epsK:
-            #     action = np.random.choice(len(qValues[i1, i2]))
-            # else:
-            #     # softmax = np.exp(qValues[i1, i2])/np.sum(np.exp(qValues[i1, i2]))
-            #     # action = np.random.choice(len(qValues[i1, i2]), p=softmax)
             action = np.argmax(qValues[i1, i2])
 
-            # action = env.action_space.sample()  # your agent here (this takes random actions)
             observation, reward, done, info = env.step(action)
             totalReward += reward
-            newi1, newi2 = getIndex(observation)
+            newi1, newi2 = getIndex(observation, binSizes)
 
             # update Q-Value
-            # alpha = 1/(stateVisits[i1, i2, action]+1)
-            # alpha = max(alpha, ALPHA)
-            # qValues[i1, i2, action] += alpha * (reward + GAMMA * np.max(qValues[newi1, newi2]) - qValues[i1, i2, action])
             qValues[i1, i2, action] = reward + GAMMA * np.max(qValues[newi1, newi2])
-            # stateVisits[i1, i2, action] += 1
             updateQ.append([i1, i2, action])
             i1, i2 = newi1, newi2
             if done:
@@ -70,11 +48,7 @@ def train(qValues, GAMMA, ALPHA, episodes=50, save=False, backtracking=False):
             # update q-values in reverse order --> faster convergence
             while len(updateQ) > 0:
                 oldi1, oldi2, oldaction = updateQ.pop()
-                # alpha = 1/(stateVisits[oldi1, oldi2, oldaction]+1)
-                # alpha = max(alpha, ALPHA)
-                # qValues[oldi1, oldi2, oldaction] += alpha * (GAMMA * np.max(qValues[i1, i2]) - qValues[oldi1, oldi2, oldaction])
                 qValues[oldi1, oldi2, oldaction] = reward + GAMMA * np.max(qValues[i1, i2])
-                # stateVisits[oldi1, oldi2, oldaction] += 1
                 i1, i2, action = oldi1, oldi2, oldaction
         if i%10 == 0:
             if backtracking:
@@ -109,13 +83,13 @@ def plotValues(qValues, episodes, gamma, save=False, folder='normal'):
 
 
 # Simulate with learned Q-Values
-def runSimulation(qValues):
+def runSimulation(qValues, binSizes):
     done = False
     observation = env.reset()
     totalReward = 0
     while not done:
         env.render()
-        i1, i2 = getIndex(observation)
+        i1, i2 = getIndex(observation, binSizes)
         action = np.argmax(qValues[i1, i2])
         observation, reward, done, info = env.step(action)
         totalReward += reward
@@ -123,24 +97,25 @@ def runSimulation(qValues):
     print(f'Simulation ended with total reward: {totalReward}')
 
 
+
 np.random.seed(42)
-GAMMA = 0.999
-# this alpha is actually a lowerbound
-ALPHA = 0.1
+bins = 50
+GAMMA = 0.995
 episodes = 1000
-qValues = np.zeros((len(f1Bins), len(f2Bins), env.action_space.n))
+binSizes = (env.observation_space.high - env.observation_space.low) / bins
+qValues = np.zeros((bins, bins, env.action_space.n))
 # with open('qTable_500_episodes_noBacktracking.npy', 'rb') as f:
 #     qValues = np.load(f)
-allRewards = train(qValues, GAMMA, ALPHA, episodes, save=False, backtracking=True)
+allRewards = train(qValues, binSizes, GAMMA, episodes, save=False, backtracking=True)
 
 plotValues(qValues, episodes, GAMMA)
-fig, ax = plt.subplots()
-ax.plot(allRewards)
-ax.set_title('Rewards over time')
-ax.set_xlabel('Episode')
-ax.set_ylabel('Reward of episode')
+# fig, ax = plt.subplots()
+# ax.plot(allRewards)
+# ax.set_title('Rewards over time')
+# ax.set_xlabel('Episode')
+# ax.set_ylabel('Reward of episode')
 plt.show()
 
 print(f'Q-Values Mean: {np.mean(qValues)}')
-runSimulation(qValues)
+runSimulation(qValues, binSizes)
 # print(qValues)
