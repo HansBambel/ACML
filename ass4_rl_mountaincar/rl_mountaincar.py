@@ -131,7 +131,7 @@ episodes = 1000
 qValues = np.zeros((len(f1Bins), len(f2Bins), env.action_space.n))
 # with open('qTable_500_episodes_noBacktracking.npy', 'rb') as f:
 #     qValues = np.load(f)
-allRewards = train(qValues, GAMMA, ALPHA, episodes, save=True, backtracking=True)
+allRewards = train(qValues, GAMMA, ALPHA, episodes, save=False, backtracking=True)
 
 plotValues(qValues, episodes, GAMMA)
 fig, ax = plt.subplots()
